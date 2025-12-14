@@ -1,7 +1,7 @@
 ﻿from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -14,7 +14,7 @@ User = get_user_model()
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
-    template_name = 'registration/registration_form.html'  # ✅ التغيير هنا
+    template_name = 'registration/registration_form.html'
     success_url = reverse_lazy('blog:index')
 
     def form_valid(self, form):

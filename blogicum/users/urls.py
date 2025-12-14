@@ -5,9 +5,8 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
-    # ✅ هذا هو المسار الذي تتوقعه الاختبارات
     path('register/', views.RegisterView.as_view(), name='register'),
-    
+
     path('profile/', views.profile_view, name='my_profile'),
     path('profile/<str:username>/', views.user_profile, name='profile'),
     
