@@ -1,7 +1,7 @@
 import os
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -11,8 +11,6 @@ from django.views.generic import (
 from .models import Category, Comment, Post
 from .forms import CommentForm, PostForm
 
-
-# تعيين إعدادات Django
 os.environ['DJANGO_SETTINGS_MODULE'] = 'blogicum.settings'
 User = get_user_model()
 
@@ -26,30 +24,29 @@ class PostListView(ListView):
     ordering = '-pub_date'
 
     def get_queryset(self):
+        # شرط المنشورات المنشورة للعامة
+        public_condition = Q(
+            is_published=True,
+            pub_date__lte=timezone.now(),
+            category__is_published=True
+        )
+        
         queryset = Post.objects.select_related(
             'author', 'category', 'location'
-        ).prefetch_related(
-            'comments'
-        ).annotate(
-            comment_count=Count('comments')
-        )
-
-        # المنطق لعرض المنشورات
+        ).prefetch_related('comments')
+        
         if self.request.user.is_authenticated:
-            user_posts = queryset.filter(author=self.request.user)
-            public_posts = queryset.filter(
-                is_published=True,
-                pub_date__lte=timezone.now(),
-                category__is_published=True
-            ).exclude(author=self.request.user)
-            queryset = user_posts.union(public_posts)
-        else:
+            # للمستخدم المسجل: منشوراته + المنشورات العامة للآخرين
             queryset = queryset.filter(
-                is_published=True,
-                pub_date__lte=timezone.now(),
-                category__is_published=True
+                Q(author=self.request.user) | public_condition
             )
-        return queryset
+        else:
+            # للزوار: المنشورات العامة فقط
+            queryset = queryset.filter(public_condition)
+        
+        # إضافة عدد التعليقات
+        queryset = queryset.annotate(comment_count=Count('comments'))
+        return queryset.order_by('-pub_date')
 
 
 # 2. عرض تفاصيل منشور واحد
@@ -61,18 +58,23 @@ class PostDetailView(DetailView):
     def get_queryset(self):
         queryset = super().get_queryset()
         post_id = self.kwargs.get('pk')
-        post = get_object_or_404(Post, pk=post_id)
-
-        if (self.request.user.is_authenticated
-                and self.request.user == post.author):
-            return queryset.filter(pk=post_id)
-        else:
-            return queryset.filter(
-                pk=post_id,
-                is_published=True,
-                pub_date__lte=timezone.now(),
-                category__is_published=True
+        
+        if self.request.user.is_authenticated:
+            # للمستخدم المسجل: يمكنه رؤية منشوراته الخاصة
+            user_posts = queryset.filter(
+                Q(pk=post_id) & 
+                Q(author=self.request.user)
             )
+            if user_posts.exists():
+                return user_posts
+        
+        # للجميع: فقط المنشورات المنشورة
+        return queryset.filter(
+            pk=post_id,
+            is_published=True,
+            pub_date__lte=timezone.now(),
+            category__is_published=True
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,6 +109,9 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def handle_no_permission(self):
         return redirect('blog:detail', pk=self.kwargs['pk'])
+    
+    def get_success_url(self):
+        return reverse('blog:detail', kwargs={'pk': self.object.pk})
 
 
 # 5. حذف منشور
@@ -133,13 +138,18 @@ class CategoryPostsView(ListView):
             slug=self.kwargs['category_slug'],
             is_published=True
         )
-        return Post.objects.filter(
+        
+        queryset = Post.objects.filter(
             category=self.category,
             is_published=True,
             pub_date__lte=timezone.now()
         ).select_related(
             'author', 'category', 'location'
-        ).order_by('-pub_date')
+        ).prefetch_related('comments')
+        
+        # إضافة عدد التعليقات
+        queryset = queryset.annotate(comment_count=Count('comments'))
+        return queryset.order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -147,54 +157,70 @@ class CategoryPostsView(ListView):
         return context
 
 
-# 7. إنشاء تعليق جديد
-class CommentCreateView(LoginRequiredMixin, CreateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment_form.html'
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        form.instance.post = get_object_or_404(Post, pk=self.kwargs['post_id'])
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('blog:detail', kwargs={'pk': self.kwargs['post_id']})
-
-
-# 8. تعديل تعليق
-class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment_form.html'
-
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
-
-    def get_success_url(self):
-        return reverse('blog:detail', kwargs={'pk': self.object.post.pk})
-
-
-# 9. حذف تعليق
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Comment
-    template_name = 'blog/comment_confirm_delete.html'
-
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
-
-    def get_success_url(self):
-        return reverse('blog:detail', kwargs={'pk': self.object.post.pk})
+# 7. إنشاء تعليق جديد (وظيفة بدلاً من كلاس)
+@login_required
+def comment_create(request, post_id):
+    post = get_object_or_404(
+        Post, 
+        pk=post_id,
+        is_published=True,
+        pub_date__lte=timezone.now(),
+        category__is_published=True
+    )
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+            return redirect('blog:detail', pk=post_id)
+    else:
+        form = CommentForm()
+    
+    return render(request, 'blog/comment_form.html', {
+        'form': form,
+        'post': post
+    })
 
 
-# 10. دالة لعرض صفحة المستخدم (Profile)
-def profile(request, username):
-    profile_user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=profile_user).order_by('-pub_date')
+# 8. تعديل تعليق (وظيفة بدلاً من كلاس)
+@login_required
+def comment_edit(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
+    
+    if comment.author != request.user:
+        return redirect('blog:detail', pk=post_id)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:detail', pk=post_id)
+    else:
+        form = CommentForm(instance=comment)
+    
+    return render(request, 'blog/comment_form.html', {
+        'form': form,
+        'comment': comment,
+        'post': comment.post
+    })
 
-    return render(request, 'users/profile.html', {
-        'profile_user': profile_user,
-        'posts': posts
+
+# 9. حذف تعليق (وظيفة بدلاً من كلاس)
+@login_required
+def comment_delete(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
+    
+    if comment.author != request.user:
+        return redirect('blog:detail', pk=post_id)
+    
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('blog:detail', pk=post_id)
+    
+    return render(request, 'blog/comment_confirm_delete.html', {
+        'comment': comment,
+        'post': comment.post
     })

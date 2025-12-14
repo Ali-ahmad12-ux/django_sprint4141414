@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Ошибка сервера{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-muted">500</h1>
+            <h2 class="mb-4">Внутренняя ошибка сервера</h2>
+            <p class="lead mb-4">
+                На сервере произошла ошибка. Пожалуйста, попробуйте позже.
+            </p>
+            <a href="{% url 'blog:index' %}" class="btn btn-primary">
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
