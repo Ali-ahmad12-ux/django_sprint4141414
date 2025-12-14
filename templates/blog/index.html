@@ -17,7 +17,8 @@
             <p>
                 <strong>Автор:</strong> {{ post.author.username }} | 
                 <strong>Дата:</strong> {{ post.pub_date|date:"d.m.Y H:i" }} | 
-                <strong>Комментарии:</strong> {{ post.comments.count|default:0 }}
+                <!-- 🔧 التغيير: post.comments.count → post.comment_count وبين قوسين -->
+                <strong>Комментарии:</strong> ({{ post.comment_count|default:0 }})
             </p>
             {% if post.category %}
                 <p>
