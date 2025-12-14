@@ -122,18 +122,16 @@ class CategoryPostsView(ListView):
             is_published=True
         )
 
-        # ✅ التصحيح: استعلام واحد مع شروط متداخلة بشكل صحيح
-        queryset = Post.objects.filter(category=self.category)
-        
         if self.request.user.is_authenticated:
-            # للمستخدمين المسجلين: عرض منشوراتهم + المنشورات العامة المنشورة
-            queryset = queryset.filter(
-                Q(author=self.request.user) | 
+            queryset = Post.objects.filter(
+                category=self.category
+            ).filter(
+                Q(author=self.request.user) |
                 Q(is_published=True, pub_date__lte=timezone.now())
             )
         else:
-            # للزوار: عرض المنشورات العامة المنشورة فقط
-            queryset = queryset.filter(
+            queryset = Post.objects.filter(
+                category=self.category,
                 is_published=True,
                 pub_date__lte=timezone.now()
             )
@@ -141,7 +139,7 @@ class CategoryPostsView(ListView):
         queryset = queryset.select_related(
             'author', 'category', 'location'
         ).prefetch_related('comments')
-
+        
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
