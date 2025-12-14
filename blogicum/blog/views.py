@@ -1,5 +1,6 @@
 import os
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render, redirect
@@ -15,7 +16,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'blogicum.settings'
 User = get_user_model()
 
 
-# 1. الصفحة الرئيسية - عرض جميع المنشورات
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
@@ -24,7 +24,6 @@ class PostListView(ListView):
     ordering = '-pub_date'
 
     def get_queryset(self):
-        # شرط المنشورات المنشورة للعامة
         public_condition = Q(
             is_published=True,
             pub_date__lte=timezone.now(),
@@ -36,20 +35,16 @@ class PostListView(ListView):
         ).prefetch_related('comments')
         
         if self.request.user.is_authenticated:
-            # للمستخدم المسجل: منشوراته + المنشورات العامة للآخرين
             queryset = queryset.filter(
                 Q(author=self.request.user) | public_condition
             )
         else:
-            # للزوار: المنشورات العامة فقط
             queryset = queryset.filter(public_condition)
         
-        # إضافة عدد التعليقات
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
 
-# 2. عرض تفاصيل منشور واحد
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/detail.html'
@@ -60,15 +55,12 @@ class PostDetailView(DetailView):
         post_id = self.kwargs.get('pk')
         
         if self.request.user.is_authenticated:
-            # للمستخدم المسجل: يمكنه رؤية منشوراته الخاصة
             user_posts = queryset.filter(
-                Q(pk=post_id) & 
-                Q(author=self.request.user)
+                Q(pk=post_id) & Q(author=self.request.user)
             )
             if user_posts.exists():
                 return user_posts
         
-        # للجميع: فقط المنشورات المنشورة
         return queryset.filter(
             pk=post_id,
             is_published=True,
@@ -83,7 +75,6 @@ class PostDetailView(DetailView):
         return context
 
 
-# 3. إنشاء منشور جديد
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -97,7 +88,6 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return reverse('users:profile', args=[self.request.user.username])
 
 
-# 4. تعديل منشور
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
@@ -114,7 +104,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse('blog:detail', kwargs={'pk': self.object.pk})
 
 
-# 5. حذف منشور
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/confirm_delete.html'
@@ -125,7 +114,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author
 
 
-# 6. عرض منشورات فئة معينة
 class CategoryPostsView(ListView):
     model = Post
     template_name = 'blog/category.html'
@@ -147,7 +135,6 @@ class CategoryPostsView(ListView):
             'author', 'category', 'location'
         ).prefetch_related('comments')
         
-        # إضافة عدد التعليقات
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
@@ -157,7 +144,6 @@ class CategoryPostsView(ListView):
         return context
 
 
-# 7. إنشاء تعليق جديد (وظيفة بدلاً من كلاس)
 @login_required
 def comment_create(request, post_id):
     post = get_object_or_404(
@@ -185,7 +171,6 @@ def comment_create(request, post_id):
     })
 
 
-# 8. تعديل تعليق (وظيفة بدلاً من كلاس)
 @login_required
 def comment_edit(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
@@ -208,7 +193,6 @@ def comment_edit(request, post_id, comment_id):
     })
 
 
-# 9. حذف تعليق (وظيفة بدلاً من كلاس)
 @login_required
 def comment_delete(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
