@@ -126,8 +126,8 @@ class CategoryPostsView(ListView):
             queryset = Post.objects.filter(
                 category=self.category
             ).filter(
-                (Q(author=self.request.user) |
-                 Q(is_published=True, pub_date__lte=timezone.now()))
+                Q(author=self.request.user)
+                | Q(is_published=True, pub_date__lte=timezone.now())
             )
         else:
             queryset = Post.objects.filter(
@@ -139,7 +139,7 @@ class CategoryPostsView(ListView):
         queryset = queryset.select_related(
             'author', 'category', 'location'
         ).prefetch_related('comments')
-        
+
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
