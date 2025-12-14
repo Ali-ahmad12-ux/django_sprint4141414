@@ -15,9 +15,8 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Media and Static (في التطوير قد تضاف)
+# Media
 media/
-staticfiles/
 
 # Emails
 sent_emails/
@@ -31,4 +30,11 @@ sent_emails/
 # OS
 .DS_Store
 Thumbs.db
-ehthumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django secret key
+secret.txt
