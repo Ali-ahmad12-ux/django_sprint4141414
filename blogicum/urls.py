@@ -9,14 +9,12 @@ urlpatterns = [
     path('pages/', include('pages.urls', namespace='pages')),
     path('auth/', include('users.urls', namespace='users')),
     path('auth/', include('django.contrib.auth.urls')),
+    # ✅ إضافة هذا المسار الإضافي للاختبارات
+    path('auth/registration/', include('users.urls')),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
-    # تمت إزالة سطر STATIC_URL لأنه غير ضروري في التطوير مع STATICFILES_DIRS
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'pages.views.page_not_found'
 handler500 = 'pages.views.server_error'
