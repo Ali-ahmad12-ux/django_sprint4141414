@@ -3,27 +3,32 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Django
-db.sqlite3
-*.log
-
-# Media
-media/
-
-# Virtual environments
+.Python
+env/
 venv/
 .venv/
+ENV/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media and Static (في التطوير قد تضاف)
+media/
+staticfiles/
+
+# Emails
+sent_emails/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Test
-.pytest_cache/
-.coverage
-htmlcov/
+ehthumbs.db
