@@ -1,7 +1,7 @@
 ﻿from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -33,7 +33,6 @@ def profile_view(request):
 
 
 def profile(request, username):
-    # 🔧 استخدام try/except بدلاً من get_object_or_404 للتحكم في الاستجابة
     try:
         profile_user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -61,5 +60,4 @@ def profile(request, username):
 
 
 def user_profile(request, username):
-    # 🔧 استدعاء الدالة profile مع نفس المنطق
     return profile(request, username)

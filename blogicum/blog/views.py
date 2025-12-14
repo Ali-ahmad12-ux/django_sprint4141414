@@ -122,13 +122,12 @@ class CategoryPostsView(ListView):
             is_published=True
         )
         
-        # 🔧 استبدل union() بـ Q objects
         if self.request.user.is_authenticated:
             queryset = Post.objects.filter(
                 category=self.category
             ).filter(
-                Q(author=self.request.user) | 
-                Q(is_published=True, pub_date__lte=timezone.now())
+                Q(author=self.request.user)
+                | Q(is_published=True, pub_date__lte=timezone.now())
             )
         else:
             queryset = Post.objects.filter(
