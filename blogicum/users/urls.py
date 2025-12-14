@@ -5,6 +5,9 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
+    # إضافة المسار المطلوب للاختبارات
+    path('registration/', views.RegisterView.as_view(), name='registration'),
+    # حافظ على المسار الحالي أيضًا
     path('register/', views.RegisterView.as_view(), name='register'),
     path('profile/', views.profile_view, name='my_profile'),
     path('profile/<str:username>/', views.user_profile, name='profile'),
