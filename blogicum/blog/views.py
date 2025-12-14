@@ -80,7 +80,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('users:profile', args=[self.request.user.username])
+        # ✅ استبدل reverse بـ reverse_lazy
+        return reverse_lazy('users:profile', args=[self.request.user.username])
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -121,13 +122,33 @@ class CategoryPostsView(ListView):
             slug=self.kwargs['category_slug'],
             is_published=True
         )
-        queryset = Post.objects.filter(
-            category=self.category,
-            is_published=True,
-            pub_date__lte=timezone.now()
-        ).select_related(
+        
+        # 🔧 فلترة صحيحة: للمستخدمين المسجلين والزوار
+        if self.request.user.is_authenticated:
+            # للمستخدم المسجل: منشوراته + منشورات الآخرين المنشورة
+            user_posts = Post.objects.filter(
+                category=self.category,
+                author=self.request.user
+            )
+            public_posts = Post.objects.filter(
+                category=self.category,
+                is_published=True,
+                pub_date__lte=timezone.now()
+            ).exclude(author=self.request.user)
+            
+            queryset = user_posts.union(public_posts)
+        else:
+            # للزوار: المنشورات المنشورة فقط
+            queryset = Post.objects.filter(
+                category=self.category,
+                is_published=True,
+                pub_date__lte=timezone.now()
+            )
+        
+        queryset = queryset.select_related(
             'author', 'category', 'location'
         ).prefetch_related('comments')
+        
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
