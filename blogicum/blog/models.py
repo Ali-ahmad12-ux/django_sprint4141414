@@ -59,7 +59,7 @@ class Post(models.Model):
     created_at = models.DateTimeField('Добавлено', auto_now_add=True)
     image = models.ImageField(
         'Картинка',
-        upload_to='birthdays/',
+        upload_to='posts/',  # ✅ التصحيح: من 'birthdays/' إلى 'posts/'
         blank=True,
         help_text='Загрузите изображение для поста'
     )
@@ -67,6 +67,7 @@ class Post(models.Model):
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+        ordering = ['-pub_date']  # ✅ إضافة الترتيب الافتراضي
 
     def __str__(self):
         return self.title

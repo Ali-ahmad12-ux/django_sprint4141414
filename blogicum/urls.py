@@ -16,10 +16,7 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
-    urlpatterns += static(
-        settings.STATIC_URL,
-        document_root=settings.STATIC_ROOT
-    )
+    # تمت إزالة سطر STATIC_URL لأنه غير ضروري في التطوير مع STATICFILES_DIRS
 
 handler404 = 'pages.views.page_not_found'
 handler500 = 'pages.views.server_error'
