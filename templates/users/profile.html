@@ -5,12 +5,6 @@
 {% block content %}
 <h1>Профиль пользователя: {{ profile_user.username }}</h1>
 
-{% if user == profile_user %}
-    <p><a href="{% url 'users:password_change' %}">Сменить пароль</a></p>
-{% endif %}
-
-<h2>Публикации пользователя:</h2>
-
 {% if posts %}
     <ul>
     {% for post in posts %}

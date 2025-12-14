@@ -9,7 +9,8 @@ urlpatterns = [
     path('pages/', include('pages.urls', namespace='pages')),
     path('auth/', include('users.urls', namespace='users')),
     path('auth/', include('django.contrib.auth.urls')),
-    # ⚠️ حذف هذا السطر: path('auth/registration/', include('users.urls')),
+    # ✅ أضف هذا السطر للاختبارات
+    path('auth/registration/', include('users.urls')),
 ]
 
 if settings.DEBUG:
