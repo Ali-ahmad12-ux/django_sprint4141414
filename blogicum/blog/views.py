@@ -122,16 +122,18 @@ class CategoryPostsView(ListView):
             is_published=True
         )
 
+        # التصحيح المهم: يجب أن يكون الاستعلام هكذا
+        queryset = Post.objects.filter(category=self.category)
+
         if self.request.user.is_authenticated:
-            queryset = Post.objects.filter(
-                category=self.category
-            ).filter(
-                Q(author=self.request.user)
-                | Q(is_published=True, pub_date__lte=timezone.now())
+            # للمستخدمين المسجلين: عرض منشوراتهم + المنشورات العامة المنشورة
+            queryset = queryset.filter(
+                Q(author=self.request.user) | 
+                Q(is_published=True, pub_date__lte=timezone.now())
             )
         else:
-            queryset = Post.objects.filter(
-                category=self.category,
+            # للزوار: عرض المنشورات العامة المنشورة فقط
+            queryset = queryset.filter(
                 is_published=True,
                 pub_date__lte=timezone.now()
             )
