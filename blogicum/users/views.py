@@ -33,7 +33,12 @@ def profile_view(request):
 
 
 def profile(request, username):
-    profile_user = get_object_or_404(User, username=username)
+    # 🔧 استخدام try/except بدلاً من get_object_or_404 للتحكم في الاستجابة
+    try:
+        profile_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, 'pages/404.html', status=404)
+    
     if request.user == profile_user:
         posts = Post.objects.filter(author=profile_user)
     else:
@@ -43,16 +48,18 @@ def profile(request, username):
             pub_date__lte=timezone.now(),
             category__is_published=True
         )
+    
     posts = posts.select_related('author', 'category', 'location')
     posts = posts.prefetch_related('comments')
     posts = posts.annotate(comment_count=Count('comments'))
     posts = posts.order_by('-pub_date')
+    
     return render(request, 'users/profile.html', {
         'profile_user': profile_user,
         'posts': posts
     })
 
 
-# إضافة دالة user_profile لتتوافق مع users/urls.py
 def user_profile(request, username):
+    # 🔧 استدعاء الدالة profile مع نفس المنطق
     return profile(request, username)

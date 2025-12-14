@@ -57,7 +57,12 @@ class Post(models.Model):
     )
     is_published = models.BooleanField('Опубликовано', default=True)
     created_at = models.DateTimeField('Добавлено', auto_now_add=True)
-    image = models.ImageField('Фото', upload_to='posts_images', blank=True)
+    image = models.ImageField(
+        'Картинка',
+        upload_to='birthdays/',
+        blank=True,
+        help_text='Загрузите изображение для поста'
+    )
 
     class Meta:
         verbose_name = 'публикация'

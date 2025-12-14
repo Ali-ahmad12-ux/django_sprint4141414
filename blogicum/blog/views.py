@@ -121,26 +121,26 @@ class CategoryPostsView(ListView):
             slug=self.kwargs['category_slug'],
             is_published=True
         )
+        
+        # 🔧 استبدل union() بـ Q objects
         if self.request.user.is_authenticated:
-            user_posts = Post.objects.filter(
-                category=self.category,
-                author=self.request.user
+            queryset = Post.objects.filter(
+                category=self.category
+            ).filter(
+                Q(author=self.request.user) | 
+                Q(is_published=True, pub_date__lte=timezone.now())
             )
-            public_posts = Post.objects.filter(
-                category=self.category,
-                is_published=True,
-                pub_date__lte=timezone.now()
-            ).exclude(author=self.request.user)
-            queryset = user_posts.union(public_posts)
         else:
             queryset = Post.objects.filter(
                 category=self.category,
                 is_published=True,
                 pub_date__lte=timezone.now()
             )
+        
         queryset = queryset.select_related(
             'author', 'category', 'location'
         ).prefetch_related('comments')
+        
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
