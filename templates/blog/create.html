@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Редактирование{% else %}Новая запись{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if form.instance.pk %}Редактировать запись{% else %}Новая запись{% endif %}</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if form.instance.pk %}Сохранить{% else %}Создать{% endif %}</button>
+    <a href="{% if form.instance.pk %}{% url 'blog:detail' form.instance.pk %}{% else %}{% url 'blog:index' %}{% endif %}">Отмена</a>
+</form>
+{% endblock %}

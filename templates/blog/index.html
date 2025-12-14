@@ -1,0 +1,37 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<h1>Последние записи</h1>
+
+{% if posts %}
+    <ul>
+    {% for post in posts %}
+        <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px;">
+            <h2><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h2>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 300px;">
+            {% endif %}
+            <p>{{ post.text|truncatewords:30 }}</p>
+            <p>
+                <strong>Автор:</strong> {{ post.author.username }} | 
+                <strong>Дата:</strong> {{ post.pub_date|date:"d.m.Y H:i" }} | 
+                <strong>Комментарии:</strong> {{ post.comments.count|default:0 }}
+            </p>
+            {% if post.category %}
+                <p>
+                    <strong>Категория:</strong> 
+                    <a href="{% url 'blog:category' post.category.slug %}">{{ post.category.title }}</a>
+                    {% if post.location %}
+                        | <strong>Место:</strong> {{ post.location.name }}
+                    {% endif %}
+                </p>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Пока нет записей. <a href="{% url 'blog:create' %}">Создайте первую!</a></p>
+{% endif %}
+{% endblock %}
