@@ -121,7 +121,7 @@ class CategoryPostsView(ListView):
             slug=self.kwargs['category_slug'],
             is_published=True
         )
-        
+
         if self.request.user.is_authenticated:
             queryset = Post.objects.filter(
                 category=self.category
@@ -135,11 +135,11 @@ class CategoryPostsView(ListView):
                 is_published=True,
                 pub_date__lte=timezone.now()
             )
-        
+
         queryset = queryset.select_related(
             'author', 'category', 'location'
         ).prefetch_related('comments')
-        
+
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
 
