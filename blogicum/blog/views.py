@@ -15,6 +15,7 @@ from .forms import CommentForm, PostForm
 os.environ['DJANGO_SETTINGS_MODULE'] = 'blogicum.settings'
 User = get_user_model()
 
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
@@ -39,6 +40,7 @@ class PostListView(ListView):
             queryset = queryset.filter(public_condition)
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
+
 
 class PostDetailView(DetailView):
     model = Post
@@ -67,6 +69,7 @@ class PostDetailView(DetailView):
         context['form'] = CommentForm()
         return context
 
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -78,6 +81,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('users:profile', args=[self.request.user.username])
+
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
@@ -94,6 +98,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('blog:detail', kwargs={'pk': self.object.pk})
 
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/confirm_delete.html'
@@ -102,6 +107,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
 
 class CategoryPostsView(ListView):
     model = Post
@@ -130,6 +136,7 @@ class CategoryPostsView(ListView):
         context['category'] = self.category
         return context
 
+
 @login_required
 def comment_create(request, post_id):
     post = get_object_or_404(
@@ -154,6 +161,7 @@ def comment_create(request, post_id):
         'post': post
     })
 
+
 @login_required
 def comment_edit(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
@@ -171,6 +179,7 @@ def comment_edit(request, post_id, comment_id):
         'comment': comment,
         'post': comment.post
     })
+
 
 @login_required
 def comment_delete(request, post_id, comment_id):

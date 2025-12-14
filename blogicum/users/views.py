@@ -11,6 +11,7 @@ from blog.models import Post
 
 User = get_user_model()
 
+
 class RegisterView(CreateView):
     form_class = UserCreationForm
     template_name = 'registration/registration.html'
@@ -21,6 +22,7 @@ class RegisterView(CreateView):
         login(self.request, self.object)
         return response
 
+
 @login_required
 def profile_view(request):
     posts = Post.objects.filter(author=request.user).order_by('-pub_date')
@@ -28,6 +30,7 @@ def profile_view(request):
         'profile_user': request.user,
         'posts': posts
     })
+
 
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
