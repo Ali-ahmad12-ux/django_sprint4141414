@@ -51,3 +51,8 @@ def profile(request, username):
         'profile_user': profile_user,
         'posts': posts
     })
+
+
+# إضافة دالة user_profile لتتوافق مع users/urls.py
+def user_profile(request, username):
+    return profile(request, username)

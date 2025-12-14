@@ -37,3 +37,6 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Django secret key
+secret.txt
