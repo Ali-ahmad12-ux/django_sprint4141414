@@ -11,7 +11,6 @@ from blog.models import Post
 
 User = get_user_model()
 
-
 class RegisterView(CreateView):
     form_class = UserCreationForm
     template_name = 'registration/registration.html'
@@ -22,7 +21,6 @@ class RegisterView(CreateView):
         login(self.request, self.object)
         return response
 
-
 @login_required
 def profile_view(request):
     posts = Post.objects.filter(author=request.user).order_by('-pub_date')
@@ -31,10 +29,8 @@ def profile_view(request):
         'posts': posts
     })
 
-
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
-    
     if request.user == profile_user:
         posts = Post.objects.filter(author=profile_user)
     else:
@@ -44,12 +40,10 @@ def profile(request, username):
             pub_date__lte=timezone.now(),
             category__is_published=True
         )
-    
     posts = posts.select_related('author', 'category', 'location')
     posts = posts.prefetch_related('comments')
     posts = posts.annotate(comment_count=Count('comments'))
     posts = posts.order_by('-pub_date')
-    
     return render(request, 'users/profile.html', {
         'profile_user': profile_user,
         'posts': posts
