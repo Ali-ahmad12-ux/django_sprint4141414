@@ -9,7 +9,7 @@ urlpatterns = [
 
     path('profile/', views.profile_view, name='my_profile'),
     path('profile/<str:username>/', views.user_profile, name='profile'),
-    
+
     path('login/',
          auth_views.LoginView.as_view(
              template_name='registration/login.html'
