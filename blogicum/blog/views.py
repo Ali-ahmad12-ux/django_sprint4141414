@@ -165,13 +165,14 @@ class ProfileView(ListView):
             User,
             username=self.kwargs['username']
         )
-        
+
         # استعلام للمنشورات
         queryset = Post.objects.filter(author=self.profile_user)
-        
+
         # إذا كان المستخدم يرى صفحته الخاصة، يعرض كل المنشورات
         if self.request.user == self.profile_user:
-            queryset = queryset.select_related('category', 'location', 'author')
+            queryset = queryset.select_related(
+                'category', 'location', 'author')
         else:
             # للآخرين: يعرض المنشورات المنشورة فقط
             queryset = queryset.filter(
@@ -179,7 +180,7 @@ class ProfileView(ListView):
                 pub_date__lte=timezone.now(),
                 category__is_published=True
             ).select_related('category', 'location', 'author')
-        
+
         # حساب عدد التعليقات
         queryset = queryset.annotate(comment_count=Count('comments'))
         return queryset.order_by('-pub_date')
