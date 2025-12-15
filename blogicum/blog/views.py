@@ -18,7 +18,7 @@ User = get_user_model()
 
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/index.html'
+    template_name = 'blog/profile.html'
     context_object_name = 'posts'
     paginate_by = 10
     ordering = '-pub_date'
@@ -80,7 +80,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('users:profile', args=[self.request.user.username])
+        # تصحيح: استخدام blog:profile بدلاً من users:profile
+        return reverse_lazy('blog:profile', args=[self.request.user.username])
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -149,6 +150,43 @@ class CategoryPostsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
+        return context
+
+
+class ProfileView(ListView):
+    model = Post
+    template_name = 'blog/profile.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # الحصول على المستخدم المطلوب
+        self.profile_user = get_object_or_404(
+            User,
+            username=self.kwargs['username']
+        )
+        
+        # استعلام للمنشورات
+        queryset = Post.objects.filter(author=self.profile_user)
+        
+        # إذا كان المستخدم يرى صفحته الخاصة، يعرض كل المنشورات
+        if self.request.user == self.profile_user:
+            queryset = queryset.select_related('category', 'location', 'author')
+        else:
+            # للآخرين: يعرض المنشورات المنشورة فقط
+            queryset = queryset.filter(
+                is_published=True,
+                pub_date__lte=timezone.now(),
+                category__is_published=True
+            ).select_related('category', 'location', 'author')
+        
+        # حساب عدد التعليقات
+        queryset = queryset.annotate(comment_count=Count('comments'))
+        return queryset.order_by('-pub_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile_user'] = self.profile_user
         return context
 
 

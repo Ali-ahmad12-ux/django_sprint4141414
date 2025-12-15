@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<h1>Профиль пользователя: <strong>{{ profile_user.username }}</strong></h1>
+
+<div>
+    {% if user == profile_user %}
+        <a href="{% url 'password_change' %}">Изменить пароль</a> | 
+        <a href="{% url 'edit_profile' %}">Редактировать профиль</a>
+    {% endif %}
+</div>
+
+<h2>Публикации пользователя:</h2>
+
+{% if page_obj %}
+<ul>
+{% for post in page_obj %}
+    <li>
+        <h3><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h3>
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 200px;">
+        {% endif %}
+        <p>{{ post.text|truncatewords:20 }}</p>
+        <p>
+            <small>
+                {{ post.pub_date|date:"d.m.Y H:i" }} | 
+                Комментарии: {{ post.comment_count }} |
+                Категория: {{ post.category.title }}
+            </small>
+        </p>
+    </li>
+{% endfor %}
+</ul>
+
+<!-- Pagination -->
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}">предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% else %}
+<p>У пользователя пока нет публикаций.</p>
+{% endif %}
+{% endblock %}

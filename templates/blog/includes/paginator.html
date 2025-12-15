@@ -1,0 +1,23 @@
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul>
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1">« первая</a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}">предыдущая</a></li>
+        {% endif %}
+
+        {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+                <li><span>{{ i }}</span></li>
+            {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">следующая</a></li>
+            <li><a href="?page={{ page_obj.paginator.num_pages }}">последняя »</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

@@ -14,7 +14,10 @@ urlpatterns = [
     path('category/<slug:category_slug>/',
          views.CategoryPostsView.as_view(),
          name='category'),
-    # 🔧 تغيير name='comment' إلى name='add_comment'
+    path('profile/<str:username>/',
+         views.ProfileView.as_view(),
+         name='profile'),
+    # التعليقات
     path('posts/<int:post_id>/comment/',
          views.comment_create,
          name='add_comment'),

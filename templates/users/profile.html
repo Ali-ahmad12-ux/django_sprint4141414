@@ -5,18 +5,31 @@
 {% block content %}
 <h1>Профиль пользователя: <strong>{{ profile_user.username }}</strong></h1>
 
-<h2>Публикации пользователя:</h2>
+<div>
+    {% if user == profile_user %}
+        <a href="{% url 'users:password_change' %}">Изменить пароль</a> | 
+        <a href="{% url 'users:edit_profile' %}">Редактировать профиль</a>
+    {% endif %}
+</div>
 
-{% if posts %}
+<h2>Публикации пользователя ({{ page_obj.paginator.count }}):</h2>
+
+{% if page_obj %}
 <ul>
-{% for post in posts %}
+{% for post in page_obj %}
     <li>
         <h3><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h3>
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 200px;">
+        {% endif %}
         <p>{{ post.text|truncatewords:20 }}</p>
-        <p><small>{{ post.pub_date|date:"d.m.Y" }}</small></p>
+        <p><small>{{ post.pub_date|date:"d.m.Y H:i" }} | Комментарии: {{ post.comment_count }}</small></p>
     </li>
 {% endfor %}
 </ul>
+
+{% include "includes/paginator.html" %}
+
 {% else %}
 <p>У пользователя пока нет публикаций.</p>
 {% endif %}

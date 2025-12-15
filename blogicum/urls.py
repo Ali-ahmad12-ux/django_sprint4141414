@@ -7,10 +7,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blog.urls', namespace='blog')),
     path('pages/', include('pages.urls', namespace='pages')),
+    # مسار users مهم - تأكد من وجود namespace
     path('auth/', include('users.urls', namespace='users')),
+    # مسارات المصادقة المدمجة
     path('auth/', include('django.contrib.auth.urls')),
-    # ✅ أضف هذا السطر للاختبارات
-    path('auth/registration/', include('users.urls')),
 ]
 
 if settings.DEBUG:
