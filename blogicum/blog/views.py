@@ -122,6 +122,9 @@ class CategoryPostsView(ListView):
             is_published=True
         )
 
+        # استعلام أساسي
+        queryset = Post.objects.filter(category=self.category)
+
         if self.request.user.is_authenticated:
             queryset = Post.objects.filter(
                 category=self.category
