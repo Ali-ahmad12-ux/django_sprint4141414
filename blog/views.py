@@ -1,8 +1,6 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.views.generic import DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
+﻿from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -34,7 +32,6 @@ class PostListView(ListView):
         ).annotate(
             comment_count=Count('comments')
         ).order_by('-pub_date')
-
         return queryset
 
 
@@ -47,16 +44,12 @@ class PostDetailView(DetailView):
         queryset = Post.objects.select_related(
             'author', 'category', 'location'
         )
-
         post = get_object_or_404(queryset, pk=self.kwargs['pk'])
-
         if self.request.user.is_authenticated and self.request.user == post.author:
             return queryset
-
         if (not post.is_published or not post.category.is_published 
-        or post.pub_date > timezone.now()):
+                or post.pub_date > timezone.now()):
             raise Http404("Пост не найден")
-
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -121,10 +114,8 @@ class CategoryPostsView(ListView):
     def get_queryset(self):
         category_slug = self.kwargs['category_slug']
         category = get_object_or_404(Category, slug=category_slug)
-
         if not category.is_published:
             raise Http404("Категория не найдена")
-
         queryset = Post.objects.select_related(
             'author', 'category', 'location'
         ).filter(
@@ -134,7 +125,6 @@ class CategoryPostsView(ListView):
         ).annotate(
             comment_count=Count('comments')
         ).order_by('-pub_date')
-
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -153,7 +143,6 @@ class ProfileView(ListView):
     def get_queryset(self):
         username = self.kwargs['username']
         user = get_object_or_404(User, username=username)
-
         if self.request.user == user:
             queryset = Post.objects.filter(
                 author=user
@@ -173,7 +162,6 @@ class ProfileView(ListView):
             ).annotate(
                 comment_count=Count('comments')
             ).order_by('-pub_date')
-
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -204,7 +192,6 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 @login_required
 def comment_create(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -213,17 +200,14 @@ def comment_create(request, post_id):
             comment.author = request.user
             comment.save()
             messages.success(request, 'Комментарий добавлен!')
-
     return redirect('blog:detail', pk=post_id)
 
 
 @login_required
 def comment_edit(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
-
     if comment.author != request.user:
         raise PermissionDenied
-
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
@@ -232,7 +216,6 @@ def comment_edit(request, post_id, comment_id):
             return redirect('blog:detail', pk=post_id)
     else:
         form = CommentForm(instance=comment)
-
     return render(request, 'blog/edit_comment.html', {
         'form': form,
         'comment': comment,
@@ -243,15 +226,12 @@ def comment_edit(request, post_id, comment_id):
 @login_required
 def comment_delete(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id, post_id=post_id)
-
     if comment.author != request.user:
         raise PermissionDenied
-
     if request.method == 'POST':
         comment.delete()
         messages.success(request, 'Комментарий удален!')
         return redirect('blog:detail', pk=post_id)
-
     return render(request, 'blog/delete_comment.html', {
         'comment': comment,
         'post': comment.post
