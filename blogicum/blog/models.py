@@ -5,13 +5,15 @@ from django.urls import reverse
 
 User = get_user_model()
 
+
 class Category(models.Model):
     title = models.CharField('Заголовок', max_length=256)
     description = models.TextField('Описание', blank=True)
     slug = models.SlugField(
-        'Идентификатор', 
+        'Идентификатор',
         unique=True,
-        help_text='Идентификатор страницы для URL; разрешены символы латиницы, цифры, дефис и подчёркивание.'
+        help_text=('Идентификатор страницы для URL; разрешены символы '
+                   'латиницы, цифры, дефис и подчёркивание.')
     )
     is_published = models.BooleanField(
         'Опубликовано',
@@ -26,9 +28,10 @@ class Category(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def get_absolute_url(self):
         return reverse('blog:category', kwargs={'category_slug': self.slug})
+
 
 class Location(models.Model):
     name = models.CharField('Название места', max_length=256)
@@ -46,12 +49,14 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+
 class Post(models.Model):
     title = models.CharField('Заголовок', max_length=256)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
         'Дата и время публикации',
-        help_text='Если установить дату и время в будущем — можно делать отложенные публикации.'
+        help_text=('Если установить дату и время в будущем — можно делать '
+                   'отложенные публикации.')
     )
     author = models.ForeignKey(
         User,
@@ -91,12 +96,13 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def get_absolute_url(self):
         return reverse('blog:detail', kwargs={'pk': self.pk})
-    
+
     def comment_count(self):
         return self.comments.count()
+
 
 class Comment(models.Model):
     text = models.TextField('Текст комментария')

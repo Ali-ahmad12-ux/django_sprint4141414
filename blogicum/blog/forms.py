@@ -1,13 +1,19 @@
 from django import forms
 from .models import Post, Comment
 
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'text', 'pub_date', 'category', 'location', 'image']
+        fields = ['title', 'text', 'pub_date', 'category', 'location',
+                  'image']
         widgets = {
-            'pub_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'text': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Введите текст поста...'}),
+            'pub_date': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'}
+            ),
+            'text': forms.Textarea(
+                attrs={'rows': 10, 'placeholder': 'Введите текст поста...'}
+            ),
         }
         labels = {
             'title': 'Заголовок',
@@ -17,6 +23,7 @@ class PostForm(forms.ModelForm):
             'location': 'Местоположение',
             'image': 'Изображение',
         }
+
 
 class CommentForm(forms.ModelForm):
     class Meta:
