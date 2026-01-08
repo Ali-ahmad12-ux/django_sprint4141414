@@ -1,0 +1,37 @@
+﻿{% extends "base.html" %}
+
+{% block title %}ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŒ {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<h1>ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ: <strong>{{ profile_user.username }}</strong></h1>
+
+<div>
+    {% if user == profile_user %}
+        <a href="{% url 'users:password_change' %}">Ð˜Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ</a> | 
+        <a href="{% url 'users:edit_profile' %}">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ñ„Ð¸Ð»ÑŒ</a>
+    {% endif %}
+</div>
+
+<h2>ÐŸÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ ({{ page_obj.paginator.count }}):</h2>
+
+{% if page_obj %}
+<ul>
+{% for post in page_obj %}
+    <li>
+        <h3><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h3>
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 200px;">
+        {% endif %}
+        <p>{{ post.text|truncatewords:20 }}</p>
+        <p><small>{{ post.pub_date|date:"d.m.Y H:i" }} | ÐšÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¸: {{ post.comment_count }}</small></p>
+    </li>
+{% endfor %}
+</ul>
+
+{% include "includes/paginator.html" %}
+
+{% else %}
+<p>Ð£ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¹.</p>
+{% endif %}
+{% endblock %}
+

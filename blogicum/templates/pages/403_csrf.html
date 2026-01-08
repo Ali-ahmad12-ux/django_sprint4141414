@@ -1,0 +1,22 @@
+﻿{% extends "base.html" %}
+
+{% block title %}403 - ÐžÑˆÐ¸Ð±ÐºÐ° CSRF{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-muted">403</h1>
+            <h2 class="mb-4">ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ CSRF</h2>
+            <p class="lead mb-4">
+                ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð´Ð¸Ñ‚ÑŒ Ð±ÐµÐ·Ð¾Ð¿Ð°ÑÐ½Ð¾ÑÑ‚ÑŒ Ð²Ð°ÑˆÐµÐ³Ð¾ Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°.
+                ÐŸÐ¾Ð¶Ð°Ð»ÑƒÐ¹ÑÑ‚Ð°, Ð¿Ð¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÑÐ½Ð¾Ð²Ð°.
+            </p>
+            <a href="{% url 'blog:index' %}" class="btn btn-primary">
+                Ð’ÐµÑ€Ð½ÑƒÑ‚ÑŒÑÑ Ð½Ð° Ð³Ð»Ð°Ð²Ð½ÑƒÑŽ
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

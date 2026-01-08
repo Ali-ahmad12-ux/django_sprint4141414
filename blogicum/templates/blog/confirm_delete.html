@@ -1,0 +1,16 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð·Ð°Ð¿Ð¸ÑÐ¸{% endblock %}
+
+{% block content %}
+<h1>Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð·Ð°Ð¿Ð¸ÑÐ¸</h1>
+
+<p>Ð’Ñ‹ ÑƒÐ²ÐµÑ€ÐµÐ½Ñ‹, Ñ‡Ñ‚Ð¾ Ñ…Ð¾Ñ‚Ð¸Ñ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð·Ð°Ð¿Ð¸ÑÑŒ <strong>"{{ object.title }}"</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="color: red;">Ð”Ð°, ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ</button>
+    <a href="{% url 'blog:detail' object.id %}">ÐžÑ‚Ð¼ÐµÐ½Ð°</a>
+</form>
+{% endblock %}
+

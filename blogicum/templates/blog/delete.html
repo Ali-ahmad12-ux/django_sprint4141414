@@ -1,0 +1,48 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¸{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¸</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <h5 class="alert-heading">Ð’Ð½Ð¸Ð¼Ð°Ð½Ð¸Ðµ!</h5>
+            <p>Ð’Ñ‹ ÑƒÐ²ÐµÑ€ÐµÐ½Ñ‹, Ñ‡Ñ‚Ð¾ Ñ…Ð¾Ñ‚Ð¸Ñ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸ÑŽ <strong>"{{ object.title }}"</strong>?</p>
+            <p class="mb-0">Ð­Ñ‚Ð¾ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ Ð½ÐµÐ»ÑŒÐ·Ñ Ð¾Ñ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ.</p>
+          </div>
+          
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ object.title }}</h5>
+              <p class="card-text">{{ object.text|truncatewords:50 }}</p>
+              <div class="text-muted small">
+                <span>ÐÐ²Ñ‚Ð¾Ñ€: {{ object.author.username }}</span> |
+                <span>Ð”Ð°Ñ‚Ð°: {{ object.pub_date|date:"d E Y, H:i" }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'blog:detail' object.pk %}" class="btn btn-secondary">
+                â† ÐžÑ‚Ð¼ÐµÐ½Ð°
+              </a>
+              <button type="submit" class="btn btn-danger">
+                Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸ÑŽ
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

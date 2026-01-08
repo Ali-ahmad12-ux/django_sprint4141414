@@ -1,0 +1,23 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ category.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ category.title }}</h1>
+<p>{{ category.description }}</p>
+
+{% if posts %}
+    <ul>
+    {% for post in posts %}
+        <li>
+            <h2><a href="{% url 'blog:detail' post.id %}">{{ post.title }}</a></h2>
+            <p>{{ post.text|truncatewords:30 }}</p>
+            <p><small>ÐÐ²Ñ‚Ð¾Ñ€: {{ post.author.username }} | {{ post.pub_date|date:"d.m.Y" }}</small></p>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Ð’ ÑÑ‚Ð¾Ð¹ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸Ð¸ Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚ Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¹.</p>
+{% endif %}
+{% endblock %}
+

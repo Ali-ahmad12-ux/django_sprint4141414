@@ -1,0 +1,60 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ post.title }}</h1>
+
+{% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 500px;">
+{% endif %}
+
+<p><strong>ÐÐ²Ñ‚Ð¾Ñ€:</strong> {{ post.author.username }}</p>
+<p><strong>Ð”Ð°Ñ‚Ð° Ð¿ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ†Ð¸Ð¸:</strong> {{ post.pub_date|date:"d.m.Y H:i" }}</p>
+<p><strong>ÐšÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸Ñ:</strong> <a href="{% url 'blog:category' post.category.slug %}">{{ post.category.title }}</a></p>
+{% if post.location %}
+    <p><strong>ÐœÐµÑÑ‚Ð¾:</strong> {{ post.location.name }}</p>
+{% endif %}
+
+<div style="margin: 20px 0; padding: 15px; background: #f9f9f9;">
+    {{ post.text|linebreaks }}
+</div>
+
+{% if user == post.author %}
+    <div style="margin: 20px 0;">
+        <a href="{% url 'blog:edit' post.id %}" style="margin-right: 10px;">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ</a>
+        <a href="{% url 'blog:delete' post.id %}" style="color: red;">Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ</a>
+    </div>
+{% endif %}
+
+<hr>
+
+<h3>ÐšÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¸ ({{ comments.count }})</h3>
+
+{% if user.is_authenticated %}
+    <form method="post" action="{% url 'blog:add_comment' post.id %}">
+        {% csrf_token %}
+        <textarea name="text" rows="3" cols="50" placeholder="Ð’Ð°Ñˆ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹"></textarea><br>
+        <button type="submit">Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹</button>
+    </form>
+{% else %}
+    <p><a href="{% url 'users:login' %}">Ð’Ð¾Ð¹Ð´Ð¸Ñ‚Ðµ</a>, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¾ÑÑ‚Ð°Ð²Ð¸Ñ‚ÑŒ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¹.</p>
+{% endif %}
+
+{% for comment in comments %}
+    <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+        <p><strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }})</p>
+        <p>{{ comment.text }}</p>
+        
+        {% if user == comment.author %}
+            <div>
+                <a href="{% url 'blog:edit_comment' post.id comment.id %}">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ</a> |
+                <a href="{% url 'blog:delete_comment' post.id comment.id %}" style="color: red;">Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ</a>
+            </div>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>ÐŸÐ¾ÐºÐ° Ð½ÐµÑ‚ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸ÐµÐ². Ð‘ÑƒÐ´ÑŒÑ‚Ðµ Ð¿ÐµÑ€Ð²Ñ‹Ð¼!</p>
+{% endfor %}
+{% endblock %}
+

@@ -1,0 +1,30 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Ð’Ñ‹Ñ…Ð¾Ð´ Ð¸Ð· ÑÐ¸ÑÑ‚ÐµÐ¼Ñ‹{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Ð’Ñ‹Ñ…Ð¾Ð´ Ð¸Ð· ÑÐ¸ÑÑ‚ÐµÐ¼Ñ‹</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Ð’Ñ‹ Ð²Ñ‹ÑˆÐ»Ð¸ Ð¸Ð· ÑÐ¸ÑÑ‚ÐµÐ¼Ñ‹</h4>
+                        <p>Ð’Ñ‹ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ Ð²Ñ‹ÑˆÐ»Ð¸ Ð¸Ð· ÑÐ²Ð¾ÐµÐ¹ ÑƒÑ‡ÐµÑ‚Ð½Ð¾Ð¹ Ð·Ð°Ð¿Ð¸ÑÐ¸.</p>
+                    </div>
+                    <a href="{% url 'blog:index' %}" class="btn btn-primary">
+                        ÐÐ° Ð³Ð»Ð°Ð²Ð½ÑƒÑŽ
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-secondary">
+                        Ð’Ð¾Ð¹Ñ‚Ð¸ ÑÐ½Ð¾Ð²Ð°
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление комментария{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Удаление комментария</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <h5 class="alert-heading">Внимание!</h5>
+            <p>Вы уверены, что хотите удалить свой комментарий?</p>
+            <p class="mb-0">Это действие нельзя отменить.</p>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">
+                Комментарий к публикации: <a href="{% url 'blog:detail' post.pk %}">{{ post.title }}</a>
+              </h6>
+              <p class="card-text">{{ comment.text }}</p>
+              <div class="text-muted small">
+                <span>Автор: {{ comment.author.username }}</span> |
+                <span>Дата: {{ comment.created_at|date:"d E Y, H:i" }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'blog:detail' post.pk %}" class="btn btn-secondary">
+                ← Отмена
+              </a>
+              <button type="submit" class="btn btn-danger">
+                Удалить комментарий
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

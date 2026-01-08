@@ -1,0 +1,93 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Последние записи</h1>
+    </div>
+</div>
+
+{% if posts %}
+<div class="row">
+    {% for post in posts %}
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            {% if post.image %}
+            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="max-height: 400px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'blog:detail' post.pk %}" class="text-decoration-none">{{ post.title }}</a>
+                </h5>
+                <p class="card-text">{{ post.text|truncatewords:50 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted">
+                            <a href="{% url 'blog:profile' post.author.username %}" class="text-decoration-none">
+                                {{ post.author.username }}
+                            </a>
+                            | {{ post.pub_date|date:"d.m.Y H:i" }}
+                        </small>
+                        {% if post.category %}
+                        <a href="{% url 'blog:category' post.category.slug %}" class="badge bg-secondary text-decoration-none ms-2">
+                            {{ post.category.title }}
+                        </a>
+                        {% endif %}
+                        {% if post.location %}
+                        <span class="badge bg-info ms-1">{{ post.location.name }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="badge bg-primary">
+                        Комментарии: {{ post.comment_count|default:0 }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">Первая</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+        </li>
+        {% endif %}
+        
+        <li class="page-item disabled">
+            <span class="page-link">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперед</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="alert alert-info">
+    <p>Пока нет записей.</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'blog:create' %}" class="btn btn-primary">Создать первую запись</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="btn btn-primary">Войдите</a>, чтобы создать запись.
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

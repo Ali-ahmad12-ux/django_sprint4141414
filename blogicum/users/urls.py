@@ -1,9 +1,9 @@
-# users/urls.py
-from django.urls import path
+﻿from django.urls import path
 from . import views
 
-app_name = 'users'  # This is crucial
+app_name = 'users'
 
 urlpatterns = [
-    path('registration/', views.RegisterView.as_view(), name='register'),
+    path('registration/', views.RegistrationView.as_view(), name='registration'),
+    path('register/', views.RegistrationView.as_view(), name='register'),  # أضف هذا
 ]
